@@ -1,4 +1,4 @@
-const backendDomin = "";
+const backendDomin = "https://zephyr-wears-server.vercel.app/";
 // https://zephyr-wears-frontend.vercel.app
 const SummaryApi = {
   signUP: {

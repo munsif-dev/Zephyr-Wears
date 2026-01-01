@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
     };
 
     if (category) {
-      where.category = { slug: category };
+      where.category = category;
     }
 
     if (search) {

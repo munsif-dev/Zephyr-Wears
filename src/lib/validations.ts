@@ -20,13 +20,9 @@ export const registerSchema = z.object({
 export const productSchema = z.object({
   name: z.string().min(1, 'Product name is required'),
   slug: z.string().min(1, 'Slug is required'),
-  description: z.string().min(10, 'Description must be at least 10 characters'),
+  description: z.string().min(10, 'Description must be at least 10 characters').optional(),
   basePrice: z.number().min(0, 'Price must be positive'),
-  categoryId: z.string().min(1, 'Category is required'),
-  isCustomizable: z.boolean().default(true),
-  material: z.string().optional(),
-  weight: z.string().optional(),
-  fit: z.enum(['regular', 'slim', 'oversized']).optional(),
+  category: z.string().min(1, 'Category is required'),
   status: z.enum(['DRAFT', 'ACTIVE', 'ARCHIVED']).default('DRAFT'),
   featured: z.boolean().default(false),
 });

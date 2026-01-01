@@ -8,11 +8,25 @@ import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
 import { formatCurrency } from '@/lib/utils';
+import { TAX_RATE, SHIPPING_COST } from '@/lib/constants';
 import { Loader2 } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
+
+const SRI_LANKAN_PROVINCES = [
+  'Western Province',
+  'Central Province',
+  'Southern Province',
+  'Northern Province',
+  'Eastern Province',
+  'North Western Province',
+  'North Central Province',
+  'Uva Province',
+  'Sabaragamuwa Province',
+] as const;
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -27,13 +41,13 @@ export default function CheckoutPage() {
     city: '',
     state: '',
     zipCode: '',
-    country: 'United States',
+    country: 'Sri Lanka',
     phone: '',
   });
 
   const subtotal = getTotal();
-  const shipping = subtotal > 0 ? 5.99 : 0;
-  const tax = subtotal * 0.08;
+  const shipping = subtotal > 0 ? SHIPPING_COST : 0;
+  const tax = subtotal * TAX_RATE;
   const total = subtotal + shipping + tax;
 
   if (items.length === 0) {
@@ -42,10 +56,39 @@ export default function CheckoutPage() {
   }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    const { name, value } = e.target;
+
+    // Special handling for phone number
+    if (name === 'phone') {
+      // Remove all non-digit characters
+      const digitsOnly = value.replace(/\D/g, '');
+
+      // Format for display
+      let formattedValue = value;
+
+      // If starts with 0, replace with +94
+      if (digitsOnly.startsWith('0') && digitsOnly.length > 1) {
+        formattedValue = '+94' + digitsOnly.substring(1);
+      }
+      // If starts with 94, add +
+      else if (digitsOnly.startsWith('94') && digitsOnly.length > 2) {
+        formattedValue = '+' + digitsOnly;
+      }
+      // If doesn't start with +, and has digits, assume local number
+      else if (digitsOnly && !value.startsWith('+')) {
+        formattedValue = '+94' + digitsOnly;
+      }
+
+      setFormData({
+        ...formData,
+        [name]: formattedValue,
+      });
+    } else {
+      setFormData({
+        ...formData,
+        [name]: value,
+      });
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -60,7 +103,7 @@ export default function CheckoutPage() {
     setIsProcessing(true);
 
     try {
-      // Prepare order data
+      // 1. Create order in database
       const orderData = {
         items: items.map((item) => ({
           productId: item.productId,
@@ -85,8 +128,7 @@ export default function CheckoutPage() {
         total,
       };
 
-      // Create order via API
-      const response = await fetch('/api/orders', {
+      const orderResponse = await fetch('/api/orders', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -94,28 +136,51 @@ export default function CheckoutPage() {
         body: JSON.stringify(orderData),
       });
 
-      if (!response.ok) {
-        const error = await response.json();
+      if (!orderResponse.ok) {
+        const error = await orderResponse.json();
         throw new Error(error.error || 'Failed to create order');
       }
 
-      const { order } = await response.json();
+      const { order } = await orderResponse.json();
 
-      // Clear cart
+      // 2. Initiate PayHere payment
+      const paymentResponse = await fetch('/api/payhere/initiate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ orderId: order.id }),
+      });
+
+      if (!paymentResponse.ok) {
+        throw new Error('Failed to initiate payment');
+      }
+
+      const { paymentUrl, payload } = await paymentResponse.json();
+
+      // Clear cart before redirecting to payment
       clearCart();
 
-      // Redirect to confirmation page
-      router.push(`/orders/${order.orderNumber}/confirmation`);
+      // 3. Submit form to PayHere
+      const form = document.createElement('form');
+      form.method = 'POST';
+      form.action = paymentUrl;
 
-      toast.success('Order placed successfully!', {
-        description: `Order #${order.orderNumber} has been created`,
+      Object.entries(payload).forEach(([key, value]) => {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = key;
+        input.value = String(value);
+        form.appendChild(input);
       });
+
+      document.body.appendChild(form);
+      form.submit();
     } catch (error) {
-      console.error('Error creating order:', error);
+      console.error('Payment error:', error);
       toast.error('Failed to process order', {
         description: error instanceof Error ? error.message : 'Please try again',
       });
-    } finally {
       setIsProcessing(false);
     }
   };
@@ -185,20 +250,30 @@ export default function CheckoutPage() {
                     />
                   </div>
                   <div>
-                    <Label htmlFor="state">State</Label>
-                    <Input
-                      id="state"
-                      name="state"
+                    <Label htmlFor="state">Province</Label>
+                    <Select
                       value={formData.state}
-                      onChange={handleInputChange}
-                      required
-                    />
+                      onValueChange={(value) =>
+                        setFormData({ ...formData, state: value })
+                      }
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select province" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {SRI_LANKAN_PROVINCES.map((province) => (
+                          <SelectItem key={province} value={province}>
+                            {province}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="zipCode">ZIP Code</Label>
+                    <Label htmlFor="zipCode">Postal Code</Label>
                     <Input
                       id="zipCode"
                       name="zipCode"
@@ -215,6 +290,7 @@ export default function CheckoutPage() {
                       value={formData.country}
                       onChange={handleInputChange}
                       required
+                      disabled
                     />
                   </div>
                 </div>
@@ -227,8 +303,14 @@ export default function CheckoutPage() {
                     type="tel"
                     value={formData.phone}
                     onChange={handleInputChange}
+                    placeholder="+94771234567"
+                    pattern="^\+94[0-9]{9}$"
+                    title="Please enter a valid Sri Lankan phone number (e.g., +94771234567)"
                     required
                   />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Format: +94XXXXXXXXX (e.g., +94771234567)
+                  </p>
                 </div>
               </div>
             </Card>

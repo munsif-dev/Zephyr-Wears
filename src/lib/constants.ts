@@ -47,15 +47,15 @@ export const PRODUCTS_PER_PAGE = 12;
 export const ORDERS_PER_PAGE = 10;
 export const REVIEWS_PER_PAGE = 5;
 
-// Tax rate (example: 8.5%)
-export const TAX_RATE = 0.085;
+// Tax rate (Sri Lanka - Tax-exempt)
+export const TAX_RATE = 0;
 
-// Shipping cost
-export const SHIPPING_COST = 9.99;
-export const FREE_SHIPPING_THRESHOLD = 50;
+// Shipping cost (Sri Lanka - Flat rate)
+export const SHIPPING_COST = 300;
+export const FREE_SHIPPING_THRESHOLD = 0; // No free shipping
 
-// Customization fee
-export const CUSTOMIZATION_FEE = 5.00;
+// Customization fee (Sri Lanka)
+export const CUSTOMIZATION_FEE = 500;
 
 // Design canvas settings
 export const CANVAS_WIDTH = 400;

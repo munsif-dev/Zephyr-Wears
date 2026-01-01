@@ -77,13 +77,11 @@ export const useCartStore = create<CartStore>()(
         get().items.reduce((sum, item) => sum + item.price * item.quantity, 0),
 
       getTax: () => {
-        const subtotal = get().getSubtotal();
-        return subtotal * 0.085; // 8.5% tax
+        return 0; // No tax (tax-exempt)
       },
 
       getShipping: () => {
-        const subtotal = get().getSubtotal();
-        return subtotal >= 50 ? 0 : 9.99; // Free shipping over $50
+        return 300; // Flat 300 LKR shipping for all orders
       },
 
       getTotal: () => {

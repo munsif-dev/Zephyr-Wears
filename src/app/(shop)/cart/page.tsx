@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { formatCurrency } from '@/lib/utils';
+import { TAX_RATE, SHIPPING_COST } from '@/lib/constants';
 import { ShoppingBag, Trash2, Plus, Minus } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -15,8 +16,8 @@ export default function CartPage() {
   const { items, removeItem, updateQuantity, getTotal, getItemCount } = useCartStore();
 
   const subtotal = getTotal();
-  const shipping = subtotal > 0 ? 5.99 : 0; // Flat rate shipping
-  const tax = subtotal * 0.08; // 8% tax
+  const shipping = subtotal > 0 ? SHIPPING_COST : 0;
+  const tax = subtotal * TAX_RATE;
   const total = subtotal + shipping + tax;
 
   if (items.length === 0) {

@@ -124,6 +124,7 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
       image: product.images[0]?.url || '',
       size: selectedVariant.size,
       color: selectedVariant.color,
+      stock: selectedVariant.stock,
       isCustom: false,
     });
 

@@ -5,22 +5,25 @@ import { Button } from '@/components/ui/button';
 import { useCartStore } from '@/stores/cartStore';
 import { Badge } from '@/components/ui/badge';
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 export function CartButton() {
-  const { getItemCount, toggleCart } = useCartStore();
+  const router = useRouter();
+  const items = useCartStore((state) => state.items);
   const [itemCount, setItemCount] = useState(0);
 
-  // Hydrate cart count only on client
+  // Update count whenever items change
   useEffect(() => {
-    setItemCount(getItemCount());
-  }, [getItemCount]);
+    const count = items.reduce((sum, item) => sum + item.quantity, 0);
+    setItemCount(count);
+  }, [items]);
 
   return (
     <Button
       variant="ghost"
       size="icon"
       className="relative"
-      onClick={toggleCart}
+      onClick={() => router.push('/cart')}
     >
       <ShoppingCart className="h-5 w-5" />
       {itemCount > 0 && (

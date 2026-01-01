@@ -192,6 +192,13 @@ model Order {
   // Order status
   status      OrderStatus   @default(PENDING)
 
+  // Payment fields (PayHere integration)
+  paymentStatus    PaymentStatus  @default(PENDING)
+  paymentMethod    String?        // VISA, MASTER, eZCash, etc.
+  paymentId        String?        // PayHere payment ID
+  paymentDate      DateTime?      // When payment was completed
+  paymentHash      String?        // MD5 hash for verification
+
   items       OrderItem[]
 
   createdAt   DateTime @default(now())
@@ -200,6 +207,7 @@ model Order {
   @@index([userId])
   @@index([orderNumber])
   @@index([status])
+  @@index([paymentStatus])
 }
 
 enum OrderStatus {
@@ -208,6 +216,14 @@ enum OrderStatus {
   SHIPPED
   DELIVERED
   CANCELLED
+}
+
+enum PaymentStatus {
+  PENDING      // Payment not initiated or pending
+  SUCCESS      // Payment successful
+  FAILED       // Payment failed
+  CANCELLED    // Payment cancelled by user
+  REFUNDED     // Payment refunded
 }
 
 model OrderItem {

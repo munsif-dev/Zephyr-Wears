@@ -25,21 +25,19 @@ async function getOrder(orderNumber: string, userId: string) {
     include: {
       items: {
         include: {
-          product: {
-            select: {
-              name: true,
-              images: {
-                take: 1,
-                orderBy: {
-                  order: 'asc',
+          variant: {
+            include: {
+              product: {
+                select: {
+                  name: true,
+                  images: {
+                    take: 1,
+                    orderBy: {
+                      order: 'asc',
+                    },
+                  },
                 },
               },
-            },
-          },
-          variant: {
-            select: {
-              size: true,
-              color: true,
             },
           },
           customDesign: {
@@ -92,7 +90,7 @@ export default async function OrderConfirmationPage({
           {/* Status */}
           <Card className="p-6">
             <h2 className="text-xl font-semibold mb-4">Order Status</h2>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4 mb-4">
               <div className="flex items-center gap-2">
                 <Package className="h-5 w-5 text-primary" />
                 <span className="font-medium">
@@ -107,6 +105,40 @@ export default async function OrderConfirmationPage({
                 </span>
               </div>
             </div>
+
+            {/* Payment Status */}
+            <Separator className="my-4" />
+            <div className="space-y-2">
+              <h3 className="font-medium text-sm text-muted-foreground">Payment Status</h3>
+              <div className="flex items-center justify-between">
+                <Badge
+                  variant={
+                    order.paymentStatus === 'SUCCESS'
+                      ? 'default'
+                      : order.paymentStatus === 'PENDING'
+                      ? 'secondary'
+                      : 'destructive'
+                  }
+                  className={
+                    order.paymentStatus === 'SUCCESS'
+                      ? 'bg-green-600 hover:bg-green-700'
+                      : ''
+                  }
+                >
+                  {order.paymentStatus}
+                </Badge>
+                {order.paymentMethod && (
+                  <span className="text-sm text-muted-foreground">
+                    via {order.paymentMethod}
+                  </span>
+                )}
+              </div>
+              {order.paymentDate && (
+                <p className="text-xs text-muted-foreground">
+                  Paid on {new Date(order.paymentDate).toLocaleDateString()}
+                </p>
+              )}
+            </div>
           </Card>
 
           {/* Order Items */}
@@ -116,10 +148,10 @@ export default async function OrderConfirmationPage({
               {order.items.map((item) => (
                 <div key={item.id} className="flex gap-4">
                   <div className="relative w-20 h-20 rounded-md overflow-hidden bg-muted flex-shrink-0">
-                    {item.product.images[0] ? (
+                    {item.variant.product.images[0] ? (
                       <Image
-                        src={item.product.images[0].url}
-                        alt={item.product.name}
+                        src={item.variant.product.images[0].url}
+                        alt={item.variant.product.name}
                         fill
                         className="object-cover"
                       />
@@ -143,7 +175,7 @@ export default async function OrderConfirmationPage({
                   </div>
 
                   <div className="flex-1">
-                    <h3 className="font-semibold mb-1">{item.product.name}</h3>
+                    <h3 className="font-semibold mb-1">{item.variant.product.name}</h3>
                     <div className="text-sm text-muted-foreground space-y-1">
                       <p>
                         Size: <span className="font-medium">{item.variant.size}</span>

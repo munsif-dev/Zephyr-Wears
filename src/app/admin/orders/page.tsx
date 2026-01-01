@@ -22,15 +22,13 @@ async function getOrders() {
       },
       items: {
         include: {
-          product: {
-            select: {
-              name: true,
-            },
-          },
           variant: {
-            select: {
-              size: true,
-              color: true,
+            include: {
+              product: {
+                select: {
+                  name: true,
+                },
+              },
             },
           },
         },
@@ -77,6 +75,22 @@ export default async function AdminOrdersPage() {
                     <Badge variant={statusColors[order.status] || 'secondary'}>
                       {order.status}
                     </Badge>
+                    <Badge
+                      variant={
+                        order.paymentStatus === 'SUCCESS'
+                          ? 'default'
+                          : order.paymentStatus === 'PENDING'
+                          ? 'secondary'
+                          : 'destructive'
+                      }
+                      className={
+                        order.paymentStatus === 'SUCCESS'
+                          ? 'bg-green-600'
+                          : ''
+                      }
+                    >
+                      {order.paymentStatus}
+                    </Badge>
                   </div>
                   <p className="text-sm text-muted-foreground mb-1">
                     {order.user.name} ({order.user.email})
@@ -107,7 +121,7 @@ export default async function AdminOrdersPage() {
                     <div className="space-y-1">
                       {order.items.map((item) => (
                         <p key={item.id} className="text-sm">
-                          {item.quantity}x {item.product.name} ({item.variant.size}/
+                          {item.quantity}x {item.variant.product.name} ({item.variant.size}/
                           {item.variant.color})
                           {item.isCustom && (
                             <Badge variant="outline" className="ml-2 text-xs">

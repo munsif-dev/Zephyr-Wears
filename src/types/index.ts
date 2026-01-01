@@ -11,9 +11,11 @@ export type ProductWithRelations = Product & {
 // Cart item type
 export interface CartItem {
   id: string;
+  productId: string;
   variantId: string;
-  productName: string;
-  productSlug: string;
+  name: string; // Product name
+  productName?: string; // Alternative field name
+  productSlug?: string;
   size: string;
   color: string;
   colorHex?: string;
@@ -22,6 +24,11 @@ export interface CartItem {
   image: string;
   designId?: string;
   stock: number;
+  isCustom?: boolean;
+  customization?: {
+    imageUrl?: string;
+    placement?: string;
+  };
 }
 
 // Design layer type

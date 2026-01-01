@@ -12,9 +12,9 @@ import Image from 'next/image';
 import { OrderStatusForm } from './OrderStatusForm';
 
 interface OrderDetailsPageProps {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 async function getOrderById(orderId: string) {
@@ -73,7 +73,8 @@ export default async function AdminOrderDetailsPage({
     redirect('/auth/login');
   }
 
-  const order = await getOrderById(params.id);
+  const { id } = await params;
+  const order = await getOrderById(id);
 
   const getPaymentStatusClass = (status: string) => {
     if (status === 'SUCCESS') return 'bg-green-600';

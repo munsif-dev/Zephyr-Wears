@@ -6,6 +6,7 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { formatCurrency } from '@/lib/utils';
 import { Plus, Edit, Eye } from 'lucide-react';
+import { DeleteProductButton } from '@/components/admin/DeleteProductButton';
 
 export const metadata = {
   title: 'Products Management | Admin',
@@ -108,6 +109,7 @@ export default async function AdminProductsPage() {
                             Edit
                           </Link>
                         </Button>
+                        <DeleteProductButton productId={product.id} productName={product.name} />
                       </div>
                     </div>
 

@@ -5,7 +5,7 @@ const f = createUploadthing();
 
 export const ourFileRouter = {
   // Design image uploader
-  designImage: f({ image: { maxFileSize: '4MB', maxFileCount: 1 } })
+  designImage: f({ image: { maxFileSize: '16MB', maxFileCount: 1 } })
     .middleware(async () => {
       const session = await auth();
       if (!session?.user) throw new Error('Unauthorized');
@@ -18,7 +18,7 @@ export const ourFileRouter = {
     }),
 
   // Product images uploader (admin only)
-  productImages: f({ image: { maxFileSize: '8MB', maxFileCount: 5 } })
+  productImages: f({ image: { maxFileSize: '16MB', maxFileCount: 5 } })
     .middleware(async () => {
       const session = await auth();
       if (!session?.user || session.user.role !== 'ADMIN') {

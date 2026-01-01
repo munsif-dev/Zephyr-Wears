@@ -19,12 +19,9 @@ export default auth((req) => {
     }
   }
 
-  // Admin-only routes
-  if (isAuth && req.nextUrl.pathname.startsWith('/admin')) {
-    if (token?.role !== 'ADMIN') {
-      return NextResponse.redirect(new URL('/', req.url));
-    }
-  }
+  // Admin-only routes - role check handled by layout
+  // Middleware only verifies authentication
+  // Authorization (role = ADMIN) is checked in /app/admin/layout.tsx
 
   // Redirect authenticated users away from auth pages
   if (isAuth && isAuthPage) {

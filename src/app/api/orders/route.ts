@@ -51,21 +51,19 @@ export async function GET(request: NextRequest) {
       include: {
         items: {
           include: {
-            product: {
-              select: {
-                name: true,
-                images: {
-                  take: 1,
-                  orderBy: {
-                    order: 'asc',
+            variant: {
+              include: {
+                product: {
+                  select: {
+                    name: true,
+                    images: {
+                      take: 1,
+                      orderBy: {
+                        order: 'asc',
+                      },
+                    },
                   },
                 },
-              },
-            },
-            variant: {
-              select: {
-                size: true,
-                color: true,
               },
             },
           },
@@ -199,21 +197,19 @@ export async function POST(request: NextRequest) {
       include: {
         items: {
           include: {
-            product: {
-              select: {
-                name: true,
-                images: {
-                  take: 1,
-                  orderBy: {
-                    order: 'asc',
+            variant: {
+              include: {
+                product: {
+                  select: {
+                    name: true,
+                    images: {
+                      take: 1,
+                      orderBy: {
+                        order: 'asc',
+                      },
+                    },
                   },
                 },
-              },
-            },
-            variant: {
-              select: {
-                size: true,
-                color: true,
               },
             },
           },

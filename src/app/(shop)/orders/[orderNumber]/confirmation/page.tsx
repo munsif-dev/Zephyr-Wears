@@ -17,7 +17,7 @@ interface ConfirmationPageProps {
 }
 
 async function getOrder(orderNumber: string, userId: string) {
-  const order = await prisma.order.findUnique({
+  const order = await prisma.order.findFirst({
     where: {
       orderNumber,
       userId, // Ensure user can only see their own orders

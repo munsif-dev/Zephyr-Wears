@@ -153,76 +153,154 @@ export function DesignStudioClient({ product }: DesignStudioClientProps) {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">Design Your Own T-Shirt</h1>
-        <p className="text-muted-foreground">
-          Upload your design, choose placement, and customize your perfect tee
-        </p>
+    <div className="min-h-screen bg-background">
+      {/* Header */}
+      <div className="border-b bg-background sticky top-0 z-20 shadow-sm">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl font-bold">Design Studio</h1>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Create your custom t-shirt
+              </p>
+            </div>
+            {imageUrl && isComplete() && (
+              <div className="hidden md:flex items-center gap-3 px-4 py-2 bg-primary/5 rounded-lg border border-primary/20">
+                <span className="text-xs text-muted-foreground">Total:</span>
+                <span className="text-xl font-bold text-primary">
+                  Rs. {getTotalPrice().toLocaleString()}
+                </span>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
 
-      <div className="grid lg:grid-cols-2 gap-8">
-        {/* Left side - Preview */}
-        <div className="order-2 lg:order-1">
-          <Card className="p-6 sticky top-4">
-            <TShirtPreview />
-            <Separator className="my-6" />
-            <div className="text-sm text-muted-foreground space-y-1">
-              <p className="font-medium">Preview Tips:</p>
-              <ul className="list-disc list-inside space-y-1">
-                <li>This is a preview of how your design will appear</li>
-                <li>Final print quality may vary</li>
-                <li>High-resolution images recommended (300 DPI)</li>
-              </ul>
+      <div className="flex h-[calc(100vh-73px)]">
+        {/* Left side - Preview (50% width) */}
+        <div className="hidden lg:flex w-1/2 border-r bg-muted/30">
+          <div className="w-full flex flex-col">
+            {/* Preview Header */}
+            <div className="px-6 py-4 border-b bg-background">
+              <h2 className="text-sm font-semibold">Live Preview</h2>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Your design in real-time
+              </p>
             </div>
-          </Card>
+
+            {/* Preview Content */}
+            <div className="flex-1 overflow-y-auto">
+              <div className="p-8 flex items-center justify-center min-h-full">
+                <div className="w-full max-w-lg">
+                  <TShirtPreview />
+                  
+                  {imageUrl && (
+                    <div className="mt-6 bg-background rounded-lg p-4 border">
+                      <p className="text-xs font-medium mb-2 flex items-center gap-2">
+                        <span className="w-1.5 h-1.5 rounded-full bg-primary"></span>
+                        Print Guidelines
+                      </p>
+                      <ul className="text-xs text-muted-foreground space-y-1">
+                        <li>• High-resolution images recommended (300 DPI)</li>
+                        <li>• Preview is approximate - colors may vary slightly</li>
+                        <li>• Design will be printed exactly as shown</li>
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
-        {/* Right side - Controls */}
-        <div className="order-1 lg:order-2 space-y-6">
-          {/* Image Upload */}
-          <Card className="p-6">
-            <ImageUploader />
-          </Card>
+        {/* Right side - Controls (50% width) */}
+        <div className="w-full lg:w-1/2 overflow-y-auto">
+          <div className="p-6 max-w-2xl mx-auto">
+            <div className="space-y-5">
+              {/* Step 1: Image Upload */}
+              <div className="border rounded-lg bg-background">
+                <div className="px-4 py-3 border-b bg-muted/50">
+                  <div className="flex items-center gap-2">
+                    <div className="w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-bold">
+                      1
+                    </div>
+                    <h3 className="text-sm font-semibold">Upload Your Design</h3>
+                  </div>
+                </div>
+                <div className="p-4">
+                  <ImageUploader />
+                </div>
+              </div>
 
-          {/* Placement Selection */}
-          {imageUrl && (
-            <Card className="p-6">
-              <PlacementSelector />
-            </Card>
-          )}
+              {/* Step 2: Placement Selection */}
+              {imageUrl && (
+                <div className="border rounded-lg bg-background">
+                  <div className="px-4 py-3 border-b bg-muted/50">
+                    <div className="flex items-center gap-2">
+                      <div className="w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-bold">
+                        2
+                      </div>
+                      <h3 className="text-sm font-semibold">Choose Placement</h3>
+                    </div>
+                  </div>
+                  <div className="p-4">
+                    <PlacementSelector />
+                  </div>
+                </div>
+              )}
 
-          {/* Product Customization */}
-          {imageUrl && (
-            <Card className="p-6">
-              <h3 className="text-lg font-semibold mb-4">Customize Your T-Shirt</h3>
-              <DesignControls variants={product.variants} basePrice={product.basePrice} />
-            </Card>
-          )}
+              {/* Step 3: Product Customization */}
+              {imageUrl && (
+                <div className="border rounded-lg bg-background">
+                  <div className="px-4 py-3 border-b bg-muted/50">
+                    <div className="flex items-center gap-2">
+                      <div className="w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-bold">
+                        3
+                      </div>
+                      <h3 className="text-sm font-semibold">Select Options</h3>
+                    </div>
+                  </div>
+                  <div className="p-4">
+                    <DesignControls variants={product.variants} basePrice={product.basePrice} />
+                  </div>
+                </div>
+              )}
 
-          {/* Action Buttons */}
-          {imageUrl && (
-            <div className="flex flex-col sm:flex-row gap-3">
-              <Button
-                onClick={handleSaveDesign}
-                variant="outline"
-                className="flex-1"
-                disabled={!isComplete()}
-              >
-                <Save className="h-4 w-4 mr-2" />
-                Save Design
-              </Button>
-              <Button
-                onClick={handleAddToCart}
-                className="flex-1"
-                size="lg"
-                disabled={!isComplete() || !selectedVariant || selectedVariant.stock === 0}
-              >
-                <ShoppingCart className="h-4 w-4 mr-2" />
-                Add to Cart
-              </Button>
+              {/* Action Buttons */}
+              {imageUrl && (
+                <div className="sticky bottom-0 bg-background border rounded-lg p-4 shadow-lg">
+                  {isComplete() && (
+                    <div className="flex items-center justify-between mb-3 pb-3 border-b">
+                      <span className="text-sm font-medium">Total Price:</span>
+                      <span className="text-xl font-bold text-primary">
+                        Rs. {getTotalPrice().toLocaleString()}
+                      </span>
+                    </div>
+                  )}
+                  <div className="flex gap-3">
+                    <Button
+                      onClick={handleSaveDesign}
+                      variant="outline"
+                      className="flex-1"
+                      disabled={!isComplete()}
+                    >
+                      <Save className="h-4 w-4 mr-2" />
+                      Save
+                    </Button>
+                    <Button
+                      onClick={handleAddToCart}
+                      className="flex-1"
+                      size="lg"
+                      disabled={!isComplete() || !selectedVariant || selectedVariant.stock === 0}
+                    >
+                      <ShoppingCart className="h-4 w-4 mr-2" />
+                      Add to Cart
+                    </Button>
+                  </div>
+                </div>
+              )}
             </div>
-          )}
+          </div>
         </div>
       </div>
     </div>

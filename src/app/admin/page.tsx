@@ -29,7 +29,7 @@ async function getDashboardStats() {
   ]);
 
   // Get recent orders
-  const recentOrders = await prisma.order.findMany({
+  const recentOrdersRaw = await prisma.order.findMany({
     take: 5,
     orderBy: {
       createdAt: 'desc',
@@ -48,6 +48,11 @@ async function getDashboardStats() {
       },
     },
   });
+
+  const recentOrders = recentOrdersRaw.map(order => ({
+    ...order,
+    total: Number(order.total),
+  }));
 
   return {
     totalProducts,

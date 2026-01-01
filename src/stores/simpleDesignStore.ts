@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { CUSTOMIZATION_FEE } from '@/lib/constants';
 
 export type Placement = 'chest' | 'back';
 
@@ -89,8 +90,7 @@ export const useSimpleDesignStore = create<SimpleDesignState>((set, get) => ({
     if (!state.selectedVariant) return 0;
 
     const { price } = state.selectedVariant;
-    const customizationFee = 5.0; // From constants
-    const total = (price + customizationFee) * state.quantity;
+    const total = (price + CUSTOMIZATION_FEE) * state.quantity;
     return total;
   },
 }));

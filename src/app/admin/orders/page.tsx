@@ -16,7 +16,7 @@ export const metadata = {
 export const revalidate = 0;
 
 async function getOrders() {
-  const orders = await prisma.order.findMany({
+  const ordersRaw = await prisma.order.findMany({
     include: {
       user: {
         select: {
@@ -43,7 +43,21 @@ async function getOrders() {
     },
   });
 
-  return orders;
+  return ordersRaw.map(order => ({
+    ...order,
+    subtotal: Number(order.subtotal),
+    tax: Number(order.tax),
+    shipping: Number(order.shipping),
+    total: Number(order.total),
+    items: order.items.map(item => ({
+      ...item,
+      price: Number(item.price),
+      variant: {
+        ...item.variant,
+        priceAdjustment: Number(item.variant.priceAdjustment),
+      },
+    })),
+  }));
 }
 
 const statusColors: Record<string, 'default' | 'secondary' | 'destructive'> = {

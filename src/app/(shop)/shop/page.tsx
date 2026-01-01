@@ -42,10 +42,10 @@ async function getProducts(searchParams: ShopPageProps['searchParams']) {
   // Price range filter
   if (price && price !== 'all') {
     const priceRanges: Record<string, { min: number; max?: number }> = {
-      '0-20': { min: 0, max: 20 },
-      '20-40': { min: 20, max: 40 },
-      '40-60': { min: 40, max: 60 },
-      '60+': { min: 60 },
+      '0-1000': { min: 0, max: 1000 },
+      '1000-2000': { min: 1000, max: 2000 },
+      '2000-3000': { min: 2000, max: 3000 },
+      '3000+': { min: 3000 },
     };
 
     const range = priceRanges[price];
@@ -125,6 +125,7 @@ async function getProducts(searchParams: ShopPageProps['searchParams']) {
       return {
         ...product,
         averageRating,
+        basePrice: Number(product.basePrice),
       };
     })
   );
@@ -134,12 +135,12 @@ async function getProducts(searchParams: ShopPageProps['searchParams']) {
 
 function ProductsLoading() {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-      {Array.from({ length: 6 }).map((_, i) => (
-        <div key={i} className="space-y-3">
-          <Skeleton className="aspect-square w-full" />
-          <Skeleton className="h-4 w-3/4" />
-          <Skeleton className="h-4 w-1/2" />
+    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+      {Array.from({ length: 8 }).map((_, i) => (
+        <div key={i} className="space-y-2">
+          <Skeleton className="aspect-[4/5] w-full" />
+          <Skeleton className="h-3 w-3/4" />
+          <Skeleton className="h-3 w-1/2" />
         </div>
       ))}
     </div>
@@ -168,16 +169,22 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
   // Get active filters for display
   const activeFilters = [];
   if (category) activeFilters.push(category.charAt(0).toUpperCase() + category.slice(1));
-  if (price) activeFilters.push(`$${price.replace('-', ' - $')}`);
+  if (price) {
+    const priceLabel = price.replace('0-1000', 'Under Rs. 1,000')
+      .replace('1000-2000', 'Rs. 1,000-2,000')
+      .replace('2000-3000', 'Rs. 2,000-3,000')
+      .replace('3000+', 'Over Rs. 3,000');
+    activeFilters.push(priceLabel);
+  }
   if (search) activeFilters.push(`"${search}"`);
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Breadcrumb & Header Section */}
-      <div className="border-b bg-muted/30">
-        <div className="container mx-auto px-6 md:px-8 lg:px-12 py-6">
+      {/* Header Section */}
+      <div className="border-b bg-gradient-to-b from-muted/50 to-background">
+        <div className="container mx-auto px-4 md:px-6 py-6 md:py-8">
           {/* Breadcrumb */}
-          <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
+          <nav className="flex items-center gap-2 text-xs text-muted-foreground mb-4" aria-label="Breadcrumb">
             <a href="/" className="hover:text-foreground transition-colors">Home</a>
             <span>/</span>
             <span className="text-foreground font-medium">Shop</span>
@@ -187,33 +194,34 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
                 <span className="text-foreground font-medium capitalize">{category}</span>
               </>
             )}
-          </div>
+          </nav>
 
           {/* Header */}
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-4">
             <div>
-              <h1 className="text-3xl md:text-4xl font-bold mb-2 bg-gradient-to-r from-cyan-600 to-blue-600 bg-clip-text text-transparent">
-                {category ? `${category.charAt(0).toUpperCase() + category.slice(1)} T-Shirts` : 'All T-Shirts'}
+              <h1 className="text-3xl md:text-4xl font-bold mb-2">
+                {category ? `${category.charAt(0).toUpperCase() + category.slice(1)} Collection` : 'All Products'}
               </h1>
-              <p className="text-muted-foreground">
+              <p className="text-sm text-muted-foreground">
                 {search
-                  ? `${productCount} result${productCount !== 1 ? 's' : ''} for "${search}"`
-                  : `${productCount} product${productCount !== 1 ? 's' : ''} available`}
+                  ? `Showing ${productCount} result${productCount !== 1 ? 's' : ''} for "${search}"`
+                  : `Discover our collection of ${productCount} premium t-shirt${productCount !== 1 ? 's' : ''}`}
               </p>
             </div>
 
             {/* Sort Options */}
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground hidden sm:inline">Sort by:</span>
               <SortDropdown />
             </div>
           </div>
 
           {/* Active Filters */}
           {activeFilters.length > 0 && (
-            <div className="flex flex-wrap items-center gap-2 mt-4">
-              <span className="text-sm text-muted-foreground">Filters:</span>
+            <div className="flex flex-wrap items-center gap-2 pt-3 border-t">
+              <span className="text-xs font-medium text-muted-foreground">Active filters:</span>
               {activeFilters.map((filter, idx) => (
-                <Badge key={idx} variant="secondary" className="text-sm">
+                <Badge key={idx} variant="secondary" className="text-xs">
                   {filter}
                 </Badge>
               ))}
@@ -223,21 +231,28 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
       </div>
 
       {/* Main Content */}
-      <div className="container mx-auto px-6 md:px-8 lg:px-12 py-8">
-        <div className="grid lg:grid-cols-4 gap-8">
+      <div className="container mx-auto px-4 md:px-6 py-8">
+        <div className="flex gap-6">
           {/* Filters Sidebar */}
-          <aside className="lg:col-span-1">
-            <div className="lg:sticky lg:top-24">
-              <div className="flex items-center gap-2 mb-4 lg:mb-6">
-                <SlidersHorizontal className="h-5 w-5" />
-                <h2 className="text-lg font-semibold">Filters</h2>
+          <aside className="hidden lg:block w-64 flex-shrink-0">
+            <div className="sticky top-20">
+              <div className="flex items-center gap-2 mb-4 pb-3 border-b">
+                <SlidersHorizontal className="h-4 w-4" />
+                <h2 className="text-base font-semibold">Filter Products</h2>
               </div>
               <ProductFilters />
             </div>
           </aside>
 
+          {/* Mobile Filter Button */}
+          <div className="lg:hidden fixed bottom-6 right-6 z-50">
+            <button className="bg-primary text-primary-foreground rounded-full p-4 shadow-lg hover:shadow-xl transition-shadow">
+              <SlidersHorizontal className="h-5 w-5" />
+            </button>
+          </div>
+
           {/* Products Grid */}
-          <main className="lg:col-span-3">
+          <main className="flex-1 min-w-0">
             <Suspense fallback={<ProductsLoading />}>
               <ProductsList searchParams={searchParams} />
             </Suspense>

@@ -3,10 +3,13 @@ import { prisma } from '@/lib/prisma';
 import { ProductDetailClient } from './ProductDetailClient';
 import type { Metadata } from 'next';
 
+// Disable static generation to ensure fresh data
+export const dynamic = 'force-dynamic';
+
 interface ProductPageProps {
-  params: {
+  params: Promise<{
     slug: string;
-  };
+  }>;
 }
 
 async function getProduct(slug: string) {
@@ -66,11 +69,17 @@ async function getProduct(slug: string) {
   return {
     ...product,
     averageRating,
+    basePrice: Number(product.basePrice),
+    variants: product.variants.map(v => ({
+      ...v,
+      priceAdjustment: Number(v.priceAdjustment),
+    })),
   };
 }
 
 export async function generateMetadata({ params }: ProductPageProps): Promise<Metadata> {
-  const product = await getProduct(params.slug);
+  const { slug } = await params;
+  const product = await getProduct(slug);
 
   if (!product) {
     return {
@@ -85,7 +94,10 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
 }
 
 export default async function ProductPage({ params }: ProductPageProps) {
-  const product = await getProduct(params.slug);
+  const { slug } = await params;
+  console.log('Loading product with slug:', slug);
+  
+  const product = await getProduct(slug);
 
   if (!product) {
     notFound();

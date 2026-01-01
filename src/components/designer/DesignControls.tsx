@@ -86,32 +86,40 @@ export function DesignControls({ variants, basePrice }: DesignControlsProps) {
     : basePrice + CUSTOMIZATION_FEE;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       {/* Size Selection */}
       <div className="space-y-3">
-        <Label className="text-sm font-semibold">
-          Select Size
+        <Label className="text-sm font-semibold flex items-center justify-between">
+          <span>Size</span>
           {selectedVariant && (
-            <span className="ml-2 font-normal text-muted-foreground">
-              ({selectedVariant.size})
+            <span className="text-xs font-normal px-2 py-0.5 rounded-full bg-primary/10 text-primary">
+              {selectedVariant.size}
             </span>
           )}
         </Label>
-        <div className="flex flex-wrap gap-2">
+        <div className="grid grid-cols-4 gap-2">
           {sizes.map((size) => {
             const isSelected = selectedVariant?.size === size;
             const isAvailable = variants.some((v) => v.size === size && v.stock > 0);
 
             return (
-              <Button
+              <button
                 key={size}
-                variant={isSelected ? 'default' : 'outline'}
                 onClick={() => handleSizeSelect(size)}
                 disabled={!isAvailable}
-                className="min-w-[60px]"
+                className={`relative h-11 rounded-lg border-2 font-medium text-sm transition-all ${
+                  isSelected
+                    ? 'border-primary bg-primary text-primary-foreground shadow-md'
+                    : isAvailable
+                    ? 'border-muted hover:border-primary/50 hover:bg-muted'
+                    : 'border-muted/50 opacity-40 cursor-not-allowed'
+                }`}
               >
                 {size}
-              </Button>
+                {isSelected && (
+                  <div className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-primary border-2 border-background"></div>
+                )}
+              </button>
             );
           })}
         </div>
@@ -119,15 +127,15 @@ export function DesignControls({ variants, basePrice }: DesignControlsProps) {
 
       {/* Color Selection */}
       <div className="space-y-3">
-        <Label className="text-sm font-semibold">
-          Select Color
+        <Label className="text-sm font-semibold flex items-center justify-between">
+          <span>Color</span>
           {selectedVariant && (
-            <span className="ml-2 font-normal text-muted-foreground">
-              ({selectedVariant.color})
+            <span className="text-xs font-normal px-2 py-0.5 rounded-full bg-primary/10 text-primary">
+              {selectedVariant.color}
             </span>
           )}
         </Label>
-        <div className="flex flex-wrap gap-2">
+        <div className="grid grid-cols-2 gap-2">
           {colors.map((color) => {
             const isSelected = selectedVariant?.color === color.name;
             const isAvailable = variants.some((v) => v.color === color.name && v.stock > 0);
@@ -137,19 +145,24 @@ export function DesignControls({ variants, basePrice }: DesignControlsProps) {
                 key={color.name}
                 onClick={() => handleColorSelect(color.name)}
                 disabled={!isAvailable}
-                className={`flex items-center gap-2 px-4 py-2 rounded-md border-2 transition-colors ${
+                className={`relative flex items-center gap-3 p-3 rounded-lg border-2 transition-all ${
                   isSelected
-                    ? 'border-primary bg-primary/10'
-                    : 'border-muted hover:border-muted-foreground'
-                } ${!isAvailable && 'opacity-50 cursor-not-allowed'}`}
+                    ? 'border-primary bg-primary/5 shadow-md'
+                    : isAvailable
+                    ? 'border-muted hover:border-primary/50 hover:bg-muted/50'
+                    : 'border-muted/50 opacity-40 cursor-not-allowed'
+                }`}
               >
                 {color.hex && (
                   <div
-                    className="w-5 h-5 rounded-full border"
+                    className="w-6 h-6 rounded-full border-2 border-background shadow-sm"
                     style={{ backgroundColor: color.hex }}
                   />
                 )}
-                <span className="text-sm">{color.name}</span>
+                <span className="text-sm font-medium">{color.name}</span>
+                {isSelected && (
+                  <div className="absolute top-2 right-2 w-2 h-2 rounded-full bg-primary"></div>
+                )}
               </button>
             );
           })}
@@ -158,13 +171,21 @@ export function DesignControls({ variants, basePrice }: DesignControlsProps) {
 
       {/* Stock Info */}
       {selectedVariant && (
-        <div className="text-sm">
+        <div className={`text-xs font-medium px-3 py-2 rounded-lg ${
+          selectedVariant.stock > 0 
+            ? 'bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-400'
+            : 'bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-400'
+        }`}>
           {selectedVariant.stock > 0 ? (
-            <span className="text-green-600 font-medium">
-              {selectedVariant.stock} in stock
+            <span className="flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-green-600 dark:bg-green-400"></span>
+              {selectedVariant.stock} units available
             </span>
           ) : (
-            <span className="text-red-600 font-medium">Out of stock</span>
+            <span className="flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-red-600 dark:bg-red-400"></span>
+              Out of stock
+            </span>
           )}
         </div>
       )}
@@ -178,15 +199,19 @@ export function DesignControls({ variants, basePrice }: DesignControlsProps) {
             size="icon"
             onClick={decrementQuantity}
             disabled={quantity <= 1}
+            className="h-10 w-10 rounded-lg"
           >
             <Minus className="h-4 w-4" />
           </Button>
-          <span className="w-12 text-center font-semibold text-lg">{quantity}</span>
+          <div className="flex-1 h-10 flex items-center justify-center bg-muted rounded-lg font-bold text-lg">
+            {quantity}
+          </div>
           <Button
             variant="outline"
             size="icon"
             onClick={incrementQuantity}
             disabled={!selectedVariant || quantity >= selectedVariant.stock}
+            className="h-10 w-10 rounded-lg"
           >
             <Plus className="h-4 w-4" />
           </Button>
@@ -194,28 +219,28 @@ export function DesignControls({ variants, basePrice }: DesignControlsProps) {
       </div>
 
       {/* Price Summary */}
-      <div className="border-t pt-4 space-y-2">
-        <div className="flex justify-between text-sm">
-          <span>Base Price:</span>
-          <span>{formatCurrency(selectedVariant?.price || basePrice)}</span>
+      <div className="bg-muted/50 rounded-xl p-4 space-y-2.5">
+        <div className="flex justify-between text-xs">
+          <span className="text-muted-foreground">Base Price:</span>
+          <span className="font-medium">Rs. {(selectedVariant?.price || basePrice).toLocaleString()}</span>
         </div>
-        <div className="flex justify-between text-sm">
-          <span>Customization Fee:</span>
-          <span>{formatCurrency(CUSTOMIZATION_FEE)}</span>
-        </div>
-        <div className="flex justify-between text-sm">
-          <span>Unit Price:</span>
-          <span className="font-medium">{formatCurrency(unitPrice)}</span>
+        <div className="flex justify-between text-xs">
+          <span className="text-muted-foreground">Customization:</span>
+          <span className="font-medium">Rs. {CUSTOMIZATION_FEE.toLocaleString()}</span>
         </div>
         {quantity > 1 && (
-          <div className="flex justify-between text-sm text-muted-foreground">
-            <span>Quantity:</span>
-            <span>× {quantity}</span>
+          <div className="flex justify-between text-xs">
+            <span className="text-muted-foreground">Quantity:</span>
+            <span className="font-medium">× {quantity}</span>
           </div>
         )}
-        <div className="flex justify-between font-bold text-lg pt-2 border-t">
-          <span>Total:</span>
-          <span className="text-primary">{formatCurrency(getTotalPrice())}</span>
+        <div className="pt-2 border-t border-border/50">
+          <div className="flex justify-between items-center">
+            <span className="text-sm font-semibold">Total:</span>
+            <span className="text-xl font-bold text-primary">
+              Rs. {getTotalPrice().toLocaleString()}
+            </span>
+          </div>
         </div>
       </div>
     </div>

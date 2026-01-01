@@ -12,7 +12,7 @@ import { Package, ShoppingBag } from 'lucide-react';
 export const revalidate = 0;
 
 async function getUserOrders(userId: string) {
-  return await prisma.order.findMany({
+  const ordersRaw = await prisma.order.findMany({
     where: { userId },
     include: {
       items: {
@@ -32,6 +32,18 @@ async function getUserOrders(userId: string) {
     },
     orderBy: { createdAt: 'desc' }
   });
+
+  return ordersRaw.map(order => ({
+    ...order,
+    subtotal: Number(order.subtotal),
+    tax: Number(order.tax),
+    shipping: Number(order.shipping),
+    total: Number(order.total),
+    items: order.items.map(item => ({
+      ...item,
+      price: Number(item.price),
+    })),
+  }));
 }
 
 export default async function OrdersPage() {

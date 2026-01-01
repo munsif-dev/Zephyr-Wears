@@ -21,7 +21,7 @@ interface OrderDetailsPageProps {
 }
 
 async function getOrderById(orderId: string) {
-  const order = await prisma.order.findUnique({
+  const orderRaw = await prisma.order.findUnique({
     where: { id: orderId },
     include: {
       user: {
@@ -59,11 +59,21 @@ async function getOrderById(orderId: string) {
     }
   });
 
-  if (!order) {
+  if (!orderRaw) {
     notFound();
   }
 
-  return order;
+  return {
+    ...orderRaw,
+    subtotal: Number(orderRaw.subtotal),
+    tax: Number(orderRaw.tax),
+    shipping: Number(orderRaw.shipping),
+    total: Number(orderRaw.total),
+    items: orderRaw.items.map(item => ({
+      ...item,
+      price: Number(item.price),
+    })),
+  };
 }
 
 export default async function AdminOrderDetailsPage({

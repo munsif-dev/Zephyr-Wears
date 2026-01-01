@@ -58,14 +58,33 @@ export async function PUT(
         },
       });
 
-      // Delete existing images and variants
+      // Get existing variants to identify which ones are referenced by orders
+      const existingVariants = await tx.productVariant.findMany({
+        where: { productId: id },
+        include: {
+          orderItems: {
+            select: { id: true }
+          }
+        }
+      });
+
+      // Separate variants into those with and without order references
+      const variantsWithOrders = existingVariants.filter(v => v.orderItems.length > 0);
+      const variantsWithoutOrders = existingVariants.filter(v => v.orderItems.length === 0);
+
+      // Delete only images (safe to delete)
       await tx.productImage.deleteMany({
         where: { productId: id },
       });
 
-      await tx.productVariant.deleteMany({
-        where: { productId: id },
-      });
+      // Delete only variants that are NOT referenced by orders
+      if (variantsWithoutOrders.length > 0) {
+        await tx.productVariant.deleteMany({
+          where: { 
+            id: { in: variantsWithoutOrders.map(v => v.id) }
+          },
+        });
+      }
 
       // Create new images
       if (body.images && body.images.length > 0) {
@@ -79,18 +98,39 @@ export async function PUT(
         });
       }
 
-      // Create new variants
+      // Create new variants or update existing ones
       if (body.variants && body.variants.length > 0) {
-        await tx.productVariant.createMany({
-          data: body.variants.map((variant: any) => ({
-            productId: id,
-            size: variant.size,
-            color: variant.color,
-            colorHex: variant.colorHex || null,
-            priceAdjustment: variant.priceAdjustment || 0,
-            stock: variant.stock || 0,
-          })),
-        });
+        for (const variant of body.variants) {
+          // Check if this variant matches an existing one that still exists (wasn't deleted)
+          // Only check against variants that have orders (these weren't deleted)
+          const existing = variantsWithOrders.find(
+            v => v.size === variant.size && v.color === variant.color
+          );
+
+          if (existing) {
+            // Update existing variant (this variant has orders, so it wasn't deleted)
+            await tx.productVariant.update({
+              where: { id: existing.id },
+              data: {
+                colorHex: variant.colorHex || null,
+                priceAdjustment: variant.priceAdjustment || 0,
+                stock: variant.stock || 0,
+              }
+            });
+          } else {
+            // Create new variant
+            await tx.productVariant.create({
+              data: {
+                productId: id,
+                size: variant.size,
+                color: variant.color,
+                colorHex: variant.colorHex || null,
+                priceAdjustment: variant.priceAdjustment || 0,
+                stock: variant.stock || 0,
+              }
+            });
+          }
+        }
       }
 
       return updatedProduct;

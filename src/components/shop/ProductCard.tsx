@@ -34,8 +34,8 @@ export function ProductCard({ product }: ProductCardProps) {
 
   return (
     <Link href={`/products/${product.slug}`}>
-      <Card className="group overflow-hidden hover:shadow-lg transition-all duration-300 h-full">
-        <div className="relative aspect-square overflow-hidden bg-muted">
+      <Card className="group overflow-hidden hover:shadow-md transition-all duration-300 h-full">
+        <div className="relative aspect-[3/4] overflow-hidden bg-muted">
           {primaryImage ? (
             <Image
               src={primaryImage.url}
@@ -45,49 +45,49 @@ export function ProductCard({ product }: ProductCardProps) {
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             />
           ) : (
-            <div className="flex items-center justify-center w-full h-full text-muted-foreground text-sm">
+            <div className="flex items-center justify-center w-full h-full text-muted-foreground text-xs">
               No Image
             </div>
           )}
 
           {/* Badges */}
-          <div className="absolute top-2 left-2 flex flex-col gap-1.5">
+          <div className="absolute top-1 left-1 flex flex-col gap-0.5">
             {isOutOfStock && (
-              <Badge variant="destructive" className="text-xs">
+              <Badge variant="destructive" className="text-[8px] px-1 py-0.5">
                 Out of Stock
               </Badge>
             )}
             {isLowStock && !isOutOfStock && (
-              <Badge variant="secondary" className="text-xs">
+              <Badge variant="secondary" className="text-[8px] px-1 py-0.5">
                 Low Stock
               </Badge>
             )}
             {product.category === 'custom' && (
-              <Badge className="text-xs bg-gradient-to-r from-cyan-600 to-blue-600">
+              <Badge className="text-[8px] px-1 py-0.5 bg-gradient-to-r from-cyan-600 to-blue-600">
                 Custom
               </Badge>
             )}
           </div>
         </div>
 
-        <CardContent className="p-3">
+        <CardContent className="p-2">
           {/* Category */}
-          <p className="text-xs text-muted-foreground capitalize mb-1.5">
+          <p className="text-[9px] text-muted-foreground capitalize mb-0.5">
             {product.category.replace('_', ' ')}
           </p>
 
-          <h3 className="font-semibold text-sm mb-2 line-clamp-2 group-hover:text-primary transition-colors">
+          <h3 className="font-semibold text-[11px] mb-0.5 line-clamp-2 group-hover:text-primary transition-colors">
             {product.name}
           </h3>
 
           {/* Rating */}
           {product.averageRating !== undefined && product._count?.reviews ? (
-            <div className="flex items-center gap-1.5 mb-2">
+            <div className="flex items-center gap-1 mb-0.5">
               <div className="flex items-center gap-0.5">
                 {Array.from({ length: 5 }).map((_, i) => (
                   <Star
                     key={i}
-                    className={`h-3 w-3 ${
+                    className={`h-2 w-2 ${
                       i < Math.floor(product.averageRating || 0)
                         ? 'fill-yellow-400 text-yellow-400'
                         : 'fill-muted text-muted'
@@ -95,10 +95,10 @@ export function ProductCard({ product }: ProductCardProps) {
                   />
                 ))}
               </div>
-              <span className="text-xs font-medium">
+              <span className="text-[8px] font-medium">
                 {product.averageRating.toFixed(1)}
               </span>
-              <span className="text-xs text-muted-foreground">
+              <span className="text-[8px] text-muted-foreground">
                 ({product._count.reviews})
               </span>
             </div>
@@ -106,11 +106,11 @@ export function ProductCard({ product }: ProductCardProps) {
 
           {/* Price */}
           <div className="flex items-baseline justify-between">
-            <p className="text-lg font-bold">
+            <p className="text-xs font-bold">
               {formatCurrency(Number(product.basePrice))}
             </p>
             {!isOutOfStock && totalStock > 0 && (
-              <span className="text-xs text-muted-foreground">
+              <span className="text-[8px] text-muted-foreground">
                 {totalStock} left
               </span>
             )}

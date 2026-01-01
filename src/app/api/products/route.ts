@@ -43,7 +43,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Fetch products
-    const [products, total] = await Promise.all([
+    const [productsRaw, total] = await Promise.all([
       prisma.product.findMany({
         where,
         include: {
@@ -62,6 +62,16 @@ export async function GET(request: NextRequest) {
       }),
       prisma.product.count({ where }),
     ]);
+
+    // Convert Decimal to number
+    const products = productsRaw.map(product => ({
+      ...product,
+      basePrice: Number(product.basePrice),
+      variants: product.variants.map(v => ({
+        ...v,
+        priceAdjustment: Number(v.priceAdjustment),
+      })),
+    }));
 
     return NextResponse.json({
       products,

@@ -44,7 +44,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const orders = await prisma.order.findMany({
+    const ordersRaw = await prisma.order.findMany({
       where: {
         userId: session.user.id,
       },
@@ -73,6 +73,18 @@ export async function GET(request: NextRequest) {
         createdAt: 'desc',
       },
     });
+
+    const orders = ordersRaw.map(order => ({
+      ...order,
+      subtotal: Number(order.subtotal),
+      tax: Number(order.tax),
+      shipping: Number(order.shipping),
+      total: Number(order.total),
+      items: order.items.map(item => ({
+        ...item,
+        price: Number(item.price),
+      })),
+    }));
 
     return NextResponse.json({ orders });
   } catch (error) {
@@ -192,7 +204,7 @@ export async function POST(request: NextRequest) {
     });
 
     // Fetch the complete order with items
-    const completeOrder = await prisma.order.findUnique({
+    const completeOrderRaw = await prisma.order.findUnique({
       where: { id: order.id },
       include: {
         items: {
@@ -216,6 +228,18 @@ export async function POST(request: NextRequest) {
         },
       },
     });
+
+    const completeOrder = completeOrderRaw ? {
+      ...completeOrderRaw,
+      subtotal: Number(completeOrderRaw.subtotal),
+      tax: Number(completeOrderRaw.tax),
+      shipping: Number(completeOrderRaw.shipping),
+      total: Number(completeOrderRaw.total),
+      items: completeOrderRaw.items.map(item => ({
+        ...item,
+        price: Number(item.price),
+      })),
+    } : null;
 
     return NextResponse.json({ order: completeOrder }, { status: 201 });
   } catch (error) {

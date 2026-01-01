@@ -14,7 +14,7 @@ export const metadata = {
 };
 
 async function getProducts() {
-  const products = await prisma.product.findMany({
+  const productsRaw = await prisma.product.findMany({
     include: {
       images: {
         take: 1,
@@ -38,7 +38,10 @@ async function getProducts() {
     },
   });
 
-  return products;
+  return productsRaw.map(product => ({
+    ...product,
+    basePrice: Number(product.basePrice),
+  }));
 }
 
 export default async function AdminProductsPage() {

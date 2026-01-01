@@ -11,6 +11,10 @@ export const metadata = {
   description: 'Design your own custom t-shirt or shop from our collection of premium quality tees. Fast shipping, high-quality materials.',
 };
 
+// Revalidate every 60 seconds
+export const revalidate = 60;
+export const dynamic = 'force-dynamic';
+
 async function getFeaturedProducts() {
   const products = await prisma.product.findMany({
     where: {

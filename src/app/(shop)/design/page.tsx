@@ -7,6 +7,10 @@ export const metadata = {
   description: 'Create a custom t-shirt with your own design',
 };
 
+// Revalidate every 60 seconds
+export const revalidate = 60;
+export const dynamic = 'force-dynamic';
+
 async function getBaseProduct() {
   // Get the first active product marked as customizable
   const product = await prisma.product.findFirst({

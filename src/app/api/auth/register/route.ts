@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
         name: validatedData.name,
         email: validatedData.email.toLowerCase(),
         password: hashedPassword,
-        role: 'USER', // Default role
+        role: 'CUSTOMER', // Default role
       },
       select: {
         id: true,

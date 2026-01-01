@@ -18,7 +18,7 @@ model User {
   emailVerified DateTime?
   image         String?
   password      String?
-  role          UserRole  @default(USER)
+  role          UserRole  @default(CUSTOMER)
 
   accounts      Account[]
   sessions      Session[]
@@ -31,7 +31,7 @@ model User {
 }
 
 enum UserRole {
-  USER
+  CUSTOMER
   ADMIN
 }
 

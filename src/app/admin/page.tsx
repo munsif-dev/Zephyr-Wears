@@ -23,7 +23,7 @@ async function getDashboardStats() {
     }),
     prisma.user.count({
       where: {
-        role: 'USER',
+        role: 'CUSTOMER',
       },
     }),
   ]);

@@ -29,7 +29,7 @@ async function main() {
       email: 'user@example.com',
       name: 'John Doe',
       password: userPassword,
-      role: 'USER',
+      role: 'CUSTOMER',
     },
   });
   console.log('✓ Regular user created:', user.email);

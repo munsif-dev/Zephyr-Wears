@@ -66,7 +66,7 @@ export default function CartPage() {
                       No Image
                     </div>
                   )}
-                  {item.isCustom && item.customization && (
+                  {item.isCustom && item.customization?.imageUrl && (
                     <div className="absolute inset-0 flex items-center justify-center">
                       <div className="relative w-16 h-16">
                         <Image

@@ -4,13 +4,14 @@ import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { formatCurrency } from '@/lib/utils';
 import { Star } from 'lucide-react';
+import { Prisma } from '@prisma/client';
 
 interface ProductCardProps {
   product: {
     id: string;
     name: string;
     slug: string;
-    basePrice: number;
+    basePrice: number | Prisma.Decimal;
     category: string;
     images: Array<{
       url: string;
@@ -107,7 +108,7 @@ export function ProductCard({ product }: ProductCardProps) {
           {/* Price */}
           <div className="flex items-baseline justify-between">
             <p className="text-lg font-bold">
-              {formatCurrency(product.basePrice)}
+              {formatCurrency(Number(product.basePrice))}
             </p>
             {!isOutOfStock && totalStock > 0 && (
               <span className="text-xs text-muted-foreground">

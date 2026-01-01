@@ -1,8 +1,7 @@
-import { Product, ProductVariant, Category, Design, Order, Review, User } from '@prisma/client';
+import { Product, ProductVariant, Order, Review, User } from '@prisma/client';
 
 // Product with relations
 export type ProductWithRelations = Product & {
-  category: Category;
   images: { id: string; url: string; alt: string | null }[];
   variants: ProductVariant[];
   reviews?: Review[];

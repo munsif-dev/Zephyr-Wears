@@ -26,7 +26,7 @@ export function CartItem({ item, showImage = true }: CartItemProps) {
         >
           <Image
             src={item.image}
-            alt={item.productName}
+            alt={item.productName || item.name}
             fill
             className="object-cover"
           />

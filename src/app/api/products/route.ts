@@ -51,7 +51,6 @@ export async function GET(request: NextRequest) {
             orderBy: { order: 'asc' },
             take: 1,
           },
-          category: true,
           variants: {
             where: { stock: { gt: 0 } },
             take: 1,

@@ -1,11 +1,12 @@
 import { ProductCard } from './ProductCard';
 import { Package } from 'lucide-react';
+import { Prisma } from '@prisma/client';
 
 interface Product {
   id: string;
   name: string;
   slug: string;
-  basePrice: number;
+  basePrice: number | Prisma.Decimal;
   category: string;
   images: Array<{
     url: string;

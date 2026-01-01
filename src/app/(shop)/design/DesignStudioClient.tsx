@@ -44,7 +44,7 @@ export function DesignStudioClient({ product }: DesignStudioClientProps) {
     setSelectedVariant,
     isComplete,
     getTotalPrice,
-    reset,
+    clearDesign,
   } = useSimpleDesignStore();
 
   const { addItem } = useCartStore();
@@ -91,6 +91,7 @@ export function DesignStudioClient({ product }: DesignStudioClientProps) {
         image: imageUrl,
         size: selectedVariant.size,
         color: selectedVariant.color,
+        stock: selectedVariant.stock,
         isCustom: true,
         customization: {
           imageUrl,
@@ -103,7 +104,7 @@ export function DesignStudioClient({ product }: DesignStudioClientProps) {
       });
 
       // Reset design state
-      reset();
+      clearDesign();
 
       // Navigate to cart
       router.push('/cart');

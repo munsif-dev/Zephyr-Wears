@@ -28,13 +28,6 @@ export async function GET(request: NextRequest) {
         userId: session.user.id,
       },
       include: {
-        product: {
-          select: {
-            id: true,
-            name: true,
-            basePrice: true,
-          },
-        },
         variant: {
           select: {
             id: true,
@@ -110,13 +103,6 @@ export async function POST(request: NextRequest) {
         placement: validatedData.placement.toUpperCase(),
       },
       include: {
-        product: {
-          select: {
-            id: true,
-            name: true,
-            basePrice: true,
-          },
-        },
         variant: {
           select: {
             id: true,
@@ -132,7 +118,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: 'Invalid request data', details: error.errors },
+        { error: 'Invalid request data', details: error.issues },
         { status: 400 }
       );
     }

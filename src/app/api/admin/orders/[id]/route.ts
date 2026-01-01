@@ -48,10 +48,6 @@ export async function PATCH(
     revalidatePath(`/admin/orders/${id}`);
     revalidatePath('/account/orders');
     revalidatePath(`/orders/${existingOrder.orderNumber}/confirmation`);
-    
-    // Also revalidate using tags for more flexibility
-    revalidateTag('orders');
-    revalidateTag(`order-${id}`);
 
     return NextResponse.json({ order });
   } catch (error) {

@@ -3,6 +3,7 @@ DROP TABLE IF EXISTS "DesignLayer" CASCADE;
 DROP TABLE IF EXISTS "Design" CASCADE;
 DROP TABLE IF EXISTS "CartItem" CASCADE;
 DROP TABLE IF EXISTS "Category" CASCADE;
+DROP TABLE IF EXISTS "Address" CASCADE;
 
 -- Drop DesignStatus and LayerType enums that are no longer used
 DROP TYPE IF EXISTS "DesignStatus";
@@ -28,15 +29,68 @@ ALTER TABLE "Product" ALTER COLUMN "description" DROP NOT NULL;
 -- Create index on category
 CREATE INDEX IF NOT EXISTS "Product_category_idx" ON "Product"("category");
 
--- Add CustomDesign table if it doesn't exist
-CREATE TABLE IF NOT EXISTS "CustomDesign" (
+-- Update Order table to match current schema
+-- Rename shippingCost to shipping if it exists
+DO $$
+BEGIN
+    IF EXISTS (
+        SELECT 1 FROM information_schema.columns
+        WHERE table_name = 'Order' AND column_name = 'shippingCost'
+    ) THEN
+        ALTER TABLE "Order" RENAME COLUMN "shippingCost" TO "shipping";
+    END IF;
+END $$;
+
+-- Add inline shipping address fields
+ALTER TABLE "Order" ADD COLUMN IF NOT EXISTS "shippingName" TEXT DEFAULT '';
+ALTER TABLE "Order" ADD COLUMN IF NOT EXISTS "shippingAddress" TEXT DEFAULT '';
+ALTER TABLE "Order" ADD COLUMN IF NOT EXISTS "shippingCity" TEXT DEFAULT '';
+ALTER TABLE "Order" ADD COLUMN IF NOT EXISTS "shippingState" TEXT DEFAULT '';
+ALTER TABLE "Order" ADD COLUMN IF NOT EXISTS "shippingZipCode" TEXT DEFAULT '';
+ALTER TABLE "Order" ADD COLUMN IF NOT EXISTS "shippingCountry" TEXT DEFAULT '';
+ALTER TABLE "Order" ADD COLUMN IF NOT EXISTS "shippingPhone" TEXT DEFAULT '';
+
+-- Remove shippingAddressId foreign key and column
+ALTER TABLE "Order" DROP CONSTRAINT IF EXISTS "Order_shippingAddressId_fkey";
+ALTER TABLE "Order" DROP COLUMN IF EXISTS "shippingAddressId";
+
+-- Remove unused Order columns
+ALTER TABLE "Order" DROP COLUMN IF EXISTS "discount";
+ALTER TABLE "Order" DROP COLUMN IF EXISTS "trackingNumber";
+ALTER TABLE "Order" DROP COLUMN IF EXISTS "carrier";
+ALTER TABLE "Order" DROP COLUMN IF EXISTS "notes";
+
+-- Rename paymentIntentId to paymentId if it exists
+DO $$
+BEGIN
+    IF EXISTS (
+        SELECT 1 FROM information_schema.columns
+        WHERE table_name = 'Order' AND column_name = 'paymentIntentId'
+    ) THEN
+        ALTER TABLE "Order" RENAME COLUMN "paymentIntentId" TO "paymentId";
+    END IF;
+END $$;
+
+-- Add payment fields
+ALTER TABLE "Order" ADD COLUMN IF NOT EXISTS "paymentDate" TIMESTAMP(3);
+ALTER TABLE "Order" ADD COLUMN IF NOT EXISTS "paymentHash" TEXT;
+
+-- Remove unused OrderItem columns
+ALTER TABLE "OrderItem" DROP CONSTRAINT IF EXISTS "OrderItem_designId_fkey";
+ALTER TABLE "OrderItem" DROP COLUMN IF EXISTS "designId";
+ALTER TABLE "OrderItem" DROP COLUMN IF EXISTS "variantSku";
+
+-- Drop and recreate CustomDesign table to match current schema
+DROP TABLE IF EXISTS "CustomDesign" CASCADE;
+
+CREATE TABLE "CustomDesign" (
     "id" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
     "productId" TEXT NOT NULL,
-    "variantId" TEXT NOT NULL,
+    "variantId" TEXT,
+    "imageUrl" TEXT NOT NULL,
+    "placement" TEXT NOT NULL,
     "orderItemId" TEXT,
-    "design" JSONB NOT NULL,
-    "price" DECIMAL(10,2) NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 

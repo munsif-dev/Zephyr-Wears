@@ -1,0 +1,16 @@
+{
+  "watch": [
+    "src",
+    "prisma/schema.prisma",
+    ".env"
+  ],
+  "ext": "ts,tsx,js,jsx,json,prisma",
+  "ignore": [
+    "node_modules",
+    ".next",
+    "dist",
+    ".git"
+  ],
+  "exec": "next dev",
+  "delay": "1000"
+}

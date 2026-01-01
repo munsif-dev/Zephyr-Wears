@@ -11,6 +11,9 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { OrderStatusForm } from './OrderStatusForm';
 
+// Disable static generation for this page to ensure fresh data
+export const revalidate = 0;
+
 interface OrderDetailsPageProps {
   params: Promise<{
     id: string;

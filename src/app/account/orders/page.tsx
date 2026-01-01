@@ -8,6 +8,9 @@ import Link from 'next/link';
 import { formatCurrency } from '@/lib/utils';
 import { Package, ShoppingBag } from 'lucide-react';
 
+// Disable static generation for this page to ensure fresh data
+export const revalidate = 0;
+
 async function getUserOrders(userId: string) {
   return await prisma.order.findMany({
     where: { userId },

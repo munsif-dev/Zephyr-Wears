@@ -4,14 +4,13 @@ import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { formatCurrency } from '@/lib/utils';
 import { Star } from 'lucide-react';
-import { Prisma } from '@prisma/client';
 
 interface ProductCardProps {
   product: {
     id: string;
     name: string;
     slug: string;
-    basePrice: number | Prisma.Decimal;
+    basePrice: number;
     category: string;
     images: Array<{
       url: string;

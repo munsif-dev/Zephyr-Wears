@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,6 +13,7 @@ import { toast } from 'sonner';
 import { Loader2, Plus, Trash2, Upload, X } from 'lucide-react';
 import { UploadButton } from '@/lib/uploadthing-components';
 import Image from 'next/image';
+import { Prisma } from '@prisma/client';
 
 interface ProductImage {
   url: string;
@@ -40,6 +41,33 @@ interface ProductFormData {
   variants: ProductVariant[];
 }
 
+type ProductWithRelations = {
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  basePrice: number;
+  category: string;
+  status: string;
+  featured: boolean;
+  images: Array<{
+    url: string;
+    altText: string | null;
+    order: number;
+  }>;
+  variants: Array<{
+    size: string;
+    color: string;
+    colorHex: string | null;
+    priceAdjustment: number;
+    stock: number;
+  }>;
+};
+
+interface ProductFormProps {
+  product?: ProductWithRelations;
+}
+
 const SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL'];
 const CATEGORIES = ['mens', 'womens', 'unisex', 'custom'];
 
@@ -54,7 +82,7 @@ const PRESET_COLORS = [
   { name: 'Yellow', hex: '#FFDC00' },
 ];
 
-export function ProductForm() {
+export function ProductForm({ product }: ProductFormProps) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState<ProductFormData>({
@@ -68,6 +96,38 @@ export function ProductForm() {
     images: [],
     variants: [],
   });
+
+  // Initialize form with product data when editing
+  useEffect(() => {
+    if (product) {
+      const validStatuses = ['DRAFT', 'ACTIVE', 'ARCHIVED'];
+      const productStatus = validStatuses.includes(product.status) 
+        ? product.status as 'DRAFT' | 'ACTIVE' | 'ARCHIVED' 
+        : 'DRAFT';
+
+      setFormData({
+        name: product.name,
+        slug: product.slug,
+        description: product.description || '',
+        basePrice: Number(product.basePrice).toString(),
+        category: product.category,
+        status: productStatus,
+        featured: product.featured,
+        images: product.images.map(img => ({
+          url: img.url,
+          altText: img.altText || '',
+          order: img.order,
+        })),
+        variants: product.variants.map(v => ({
+          size: v.size,
+          color: v.color,
+          colorHex: v.colorHex || '#000000',
+          priceAdjustment: Number(v.priceAdjustment),
+          stock: v.stock,
+        })),
+      });
+    }
+  }, [product]);
 
   // Generate slug from name
   const handleNameChange = (name: string) => {
@@ -149,8 +209,13 @@ export function ProductForm() {
     setIsSubmitting(true);
 
     try {
-      const res = await fetch('/api/admin/products', {
-        method: 'POST',
+      const url = product 
+        ? `/api/admin/products/${product.id}` 
+        : '/api/admin/products';
+      const method = product ? 'PUT' : 'POST';
+
+      const res = await fetch(url, {
+        method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...formData,
@@ -160,15 +225,16 @@ export function ProductForm() {
 
       if (!res.ok) {
         const error = await res.json();
-        throw new Error(error.error || 'Failed to create product');
+        throw new Error(error.error || `Failed to ${product ? 'update' : 'create'} product`);
       }
 
-      const { product } = await res.json();
-      toast.success('Product created successfully!');
+      const { product: savedProduct } = await res.json();
+      toast.success(`Product ${product ? 'updated' : 'created'} successfully!`);
       router.push('/admin/products');
+      router.refresh();
     } catch (error) {
-      console.error('Product creation error:', error);
-      toast.error(error instanceof Error ? error.message : 'Failed to create product');
+      console.error('Product save error:', error);
+      toast.error(error instanceof Error ? error.message : `Failed to ${product ? 'update' : 'create'} product`);
     } finally {
       setIsSubmitting(false);
     }
@@ -473,10 +539,10 @@ export function ProductForm() {
           {isSubmitting ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Creating Product...
+              {product ? 'Updating Product...' : 'Creating Product...'}
             </>
           ) : (
-            'Create Product'
+            product ? 'Update Product' : 'Create Product'
           )}
         </Button>
         <Button

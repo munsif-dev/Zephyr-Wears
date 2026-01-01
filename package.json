@@ -5,10 +5,11 @@
   "scripts": {
     "dev": "nodemon",
     "dev:turbo": "next dev --turbo",
-    "build": "prisma generate && prisma migrate deploy && next build",
+    "build": "prisma generate && prisma migrate deploy && npm run db:seed:prod && next build",
     "start": "next start",
     "lint": "eslint",
     "db:seed": "tsx prisma/seed.ts",
+    "db:seed:prod": "node -e \"if(process.env.RUN_SEED === 'true') require('child_process').execSync('tsx prisma/seed.ts', {stdio: 'inherit'}); else console.log('Skipping seed (set RUN_SEED=true to enable)')\"",
     "postinstall": "prisma generate"
   },
   "prisma": {

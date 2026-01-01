@@ -131,8 +131,12 @@ async function main() {
   for (const productData of products) {
     const { imageUrl, ...productInfo } = productData;
 
-    const product = await prisma.product.create({
-      data: {
+    const product = await prisma.product.upsert({
+      where: { slug: productData.slug },
+      update: {
+        ...productInfo,
+      },
+      create: {
         ...productInfo,
         images: {
           create: [
@@ -157,7 +161,7 @@ async function main() {
       },
     });
 
-    console.log(`✓ Created product: ${product.name}`);
+    console.log(`✓ Created/Updated product: ${product.name}`);
   }
 
   // Create some sample reviews
@@ -165,16 +169,26 @@ async function main() {
   const allProducts = await prisma.product.findMany({ take: 3 });
 
   for (const product of allProducts) {
-    await prisma.review.create({
-      data: {
+    // Check if review already exists to avoid duplicates
+    const existingReview = await prisma.review.findFirst({
+      where: {
         productId: product.id,
         userId: user.id,
-        rating: 5,
-        comment: 'Excellent quality! Very comfortable and fits perfectly.',
       },
     });
+
+    if (!existingReview) {
+      await prisma.review.create({
+        data: {
+          productId: product.id,
+          userId: user.id,
+          rating: 5,
+          comment: 'Excellent quality! Very comfortable and fits perfectly.',
+        },
+      });
+    }
   }
-  console.log('✓ Sample reviews created');
+  console.log('✓ Sample reviews created/verified');
 
   console.log('✨ Database seed completed successfully!');
   console.log('\n📝 Login credentials:');

@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "nodemon",
     "dev:turbo": "next dev --turbo",
-    "build": "prisma generate && prisma migrate deploy && npm run db:seed:prod && next build",
+    "build": "prisma generate && tsx scripts/fix-schema.ts && prisma migrate deploy && npm run db:seed:prod && next build",
     "start": "next start",
     "lint": "eslint",
     "db:seed": "tsx prisma/seed.ts",

@@ -5,11 +5,15 @@ import { formatCurrency } from '@/lib/utils';
 import { Eye } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import { unstable_cache } from 'next/cache';
 
 export const metadata = {
   title: 'Orders Management | Admin',
   description: 'Manage customer orders',
 };
+
+// Disable static generation for this page to ensure fresh data
+export const revalidate = 0;
 
 async function getOrders() {
   const orders = await prisma.order.findMany({

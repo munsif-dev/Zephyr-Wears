@@ -13,7 +13,6 @@ import { toast } from 'sonner';
 import { Loader2, Plus, Trash2, Upload, X } from 'lucide-react';
 import { UploadButton } from '@/lib/uploadthing-components';
 import Image from 'next/image';
-import { Prisma } from '@prisma/client';
 
 interface ProductImage {
   url: string;

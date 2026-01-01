@@ -80,7 +80,7 @@ export default async function DesignStudioPage() {
     name: product.name,
     description: product.description,
     basePrice: Number(product.basePrice),
-    variants: product.variants.map((v) => ({
+    variants: product.variants.map((v: typeof product.variants[number]) => ({
       id: v.id,
       size: v.size,
       color: v.color,

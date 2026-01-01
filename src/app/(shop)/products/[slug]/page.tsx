@@ -98,12 +98,12 @@ export default async function ProductPage({ params }: ProductPageProps) {
     description: product.description,
     basePrice: Number(product.basePrice),
     category: product.category,
-    images: product.images.map((img) => ({
+    images: product.images.map((img: typeof product.images[number]) => ({
       id: img.id,
       url: img.url,
       altText: img.altText,
     })),
-    variants: product.variants.map((v) => ({
+    variants: product.variants.map((v: typeof product.variants[number]) => ({
       id: v.id,
       size: v.size,
       color: v.color,
@@ -111,7 +111,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
       stock: v.stock,
       priceAdjustment: Number(v.priceAdjustment),
     })),
-    reviews: product.reviews.map((r) => ({
+    reviews: product.reviews.map((r: typeof product.reviews[number]) => ({
       id: r.id,
       rating: r.rating,
       comment: r.comment,
